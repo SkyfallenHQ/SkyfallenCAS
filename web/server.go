@@ -4,6 +4,7 @@ import (
 	"backend/structures"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 	"go.mongodb.org/mongo-driver/mongo"
 	"log"
 )
@@ -20,6 +21,17 @@ func Serve(conf map[string]string, db *mongo.Client){
 		AllowOrigins: conf["FRONTEND_URL"],
 		AllowHeaders:  "Origin, Content-Type, Accept",
 	}))
+
+	wa.Use(func(c *fiber.Ctx) error {
+		c.Set("Server", "Skyfallen (R) Web App Engine for Go")
+		c.Set("X-Powered-By", "SkyfallenCAS "+conf["CAS_VERSION"]+" for Skyfallen ID")
+		c.Set("X-Skyfallen-Product-Id", "SKFP610")
+		return c.Next()
+	})
+
+	if conf["WEB_SHOW_ALL_REQUEST_LOGS"] == "true" {
+		wa.Use(logger.New())
+	}
 
 	Route(*&structures.SkyfallenCASApp{ WA: wa, DB: db, Conf:conf })
 
