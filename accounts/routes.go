@@ -19,4 +19,11 @@ func Route(app structures.SkyfallenCASApp){
 
 	})
 
+
+	app.WA.Get("/accounts/list", func(ctx *fiber.Ctx) error {
+
+		return list(ctx, app)
+
+	})
+
 }
